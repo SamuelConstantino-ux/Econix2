@@ -17,15 +17,15 @@ const Dashboard: React.FC<DashboardProps> = ({ records, filters, setFilters, cat
     return records.filter(record => {
       const recordDate = new Date(record.date);
       const [fYear, fMonth] = filters.month.split('-').map(Number);
-      
+
       const matchesMonth = recordDate.getFullYear() === fYear && (recordDate.getMonth() + 1) === fMonth;
-      
+
       if (filters.startDate && filters.endDate) {
         const start = new Date(filters.startDate);
         const end = new Date(filters.endDate);
         return recordDate >= start && recordDate <= end;
       }
-      
+
       return matchesMonth;
     });
   }, [records, filters]);
@@ -44,7 +44,7 @@ const Dashboard: React.FC<DashboardProps> = ({ records, filters, setFilters, cat
     const income = paidRecords.filter(r => r.type === 'Entrada').reduce((acc: number, r) => acc + Number(r.value), 0);
     const outcome = paidRecords.filter(r => r.type === 'Saída').reduce((acc: number, r) => acc + Number(r.value), 0);
     const investment = paidRecords.filter(r => r.type === 'Investimento').reduce((acc: number, r) => acc + Number(r.value), 0);
-    
+
     return {
       income,
       outcome,
@@ -72,15 +72,15 @@ const Dashboard: React.FC<DashboardProps> = ({ records, filters, setFilters, cat
     expenses.forEach(r => {
       map[r.category] = (map[r.category] || 0) + Number(r.value);
     });
-    
+
     return Object.entries(map)
       .map(([name, value]) => {
         const categoryInfo = categories.find(c => c.name === name);
-        return { 
-          name, 
-          value, 
+        return {
+          name,
+          value,
           color: categoryInfo?.color || '#6366f1',
-          percent: totalExpenses > 0 ? ((value / totalExpenses) * 100).toFixed(0) : '0' 
+          percent: totalExpenses > 0 ? ((value / totalExpenses) * 100).toFixed(0) : '0'
         };
       })
       .sort((a, b) => b.value - a.value);
@@ -143,9 +143,9 @@ const Dashboard: React.FC<DashboardProps> = ({ records, filters, setFilters, cat
                   <Pie data={donutData} cx="50%" cy="50%" innerRadius={55} outerRadius={75} paddingAngle={4} dataKey="value">
                     {donutData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                   </Pie>
-                  <Tooltip 
+                  <Tooltip
                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: '11px' }}
-                    formatter={(value: number, name: string, props: any) => [formatCurrency(value), `${name} (${props.payload.percent}%)`]} 
+                    formatter={(value: number, name: string, props: any) => [formatCurrency(value), `${name} (${props.payload.percent}%)`]}
                   />
                   <Legend verticalAlign="bottom" height={36} iconType="circle" formatter={(value, entry: any) => (
                     <span className="text-[10px] font-medium text-gray-500">{value} ({entry.payload.percent}%)</span>
@@ -163,33 +163,36 @@ const Dashboard: React.FC<DashboardProps> = ({ records, filters, setFilters, cat
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={categoryData} margin={{ top: 10, bottom: 40, left: 10, right: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                  <XAxis 
-                    dataKey="name" 
-                    fontSize={9} 
-                    tick={{fill: '#9ca3af', fontWeight: 500}} 
-                    axisLine={false} 
-                    tickLine={false} 
-                    interval={0} 
-                    angle={-30} 
-                    textAnchor="end" 
+                  <XAxis
+                    dataKey="name"
+                    fontSize={9}
+                    tick={{ fill: '#9ca3af', fontWeight: 500 }}
+                    axisLine={false}
+                    tickLine={false}
+                    interval={0}
+                    angle={-30}
+                    textAnchor="end"
                   />
-                  <YAxis 
-                    fontSize={9} 
-                    tick={{fill: '#9ca3af'}} 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tickFormatter={(value) => value >= 1000 ? `${(value/1000).toFixed(1)}k` : value}
+                  <YAxis
+                    fontSize={9}
+                    tick={{ fill: '#9ca3af' }}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(value) => value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value}
                   />
-                  <Tooltip 
-                    cursor={{fill: '#f9fafb'}} 
+                  <Tooltip
+                    cursor={{ fill: '#f9fafb' }}
                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: '11px' }}
-                    formatter={(value: number) => [formatCurrency(value), 'Valor']} 
+                    formatter={(value: number) => [formatCurrency(value), 'Valor']}
                   />
-                  <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={24} label={({ x, y, width, index }) => (
-                    <text x={x + width / 2} y={y - 8} fill="#9ca3af" textAnchor="middle" fontSize={9} fontWeight="bold">
-                      {categoryData[index].percent}%
-                    </text>
-                  )}>
+                  <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={24} label={(props: any) => {
+                    const { x, y, width, index } = props;
+                    return (
+                      <text x={x + width / 2} y={y - 8} fill="#9ca3af" textAnchor="middle" fontSize={9} fontWeight="bold">
+                        {categoryData[index].percent}%
+                      </text>
+                    );
+                  }}>
                     {categoryData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
