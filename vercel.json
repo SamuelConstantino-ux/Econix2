@@ -1,8 +1,10 @@
-
 {
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/((?!manifest\\.json|sw\\.js).*)", "destination": "/index.html" }
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ],
   "headers": [
     {
