@@ -1,8 +1,9 @@
 {
   "cleanUrls": true,
+  "trailingSlash": false,
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/((?!manifest\\.json|sw\\.js|index\\.css|assets|favicon\\.ico).*)",
       "destination": "/index.html"
     }
   ],
