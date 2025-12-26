@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { User as UserIcon, Mail, Shield, LogOut, Settings, CreditCard, ChevronRight, Download, Smartphone, Share, PlusSquare, X } from 'lucide-react';
 import { User } from '../types';
@@ -13,13 +12,14 @@ interface ProfileProps {
 const Profile: React.FC<ProfileProps> = ({ user, onLogout, canInstall, onInstallApp }) => {
   const [showInstallModal, setShowInstallModal] = useState(false);
 
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isAndroid = /Android/.test(navigator.userAgent);
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
 
   // Função para abrir o modal ou tentar instalação direta
   const handleMainInstallClick = async () => {
-    // No iOS, sempre mostramos o modal de instruções
-    if (isIOS) {
+    // No iOS ou Android sem prompt, mostramos o modal de instruções
+    if (isIOS || (isAndroid && !canInstall)) {
       setShowInstallModal(true);
       return;
     }
@@ -27,10 +27,10 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, canInstall, onInstall
     // Se temos o prompt nativo pronto, tentamos disparar direto
     if (canInstall && onInstallApp) {
       const success = await onInstallApp();
-      if (success) return; // Se aceitou, não precisa de modal
+      if (success) return;
     }
 
-    // Caso contrário (ou se recusou antes), mostramos o modal explicativo
+    // Fallback geral
     setShowInstallModal(true);
   };
 
@@ -67,20 +67,20 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, canInstall, onInstall
 
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider px-2 mb-2">Sistema</h3>
-        
+
         {!isStandalone && (
-          <button 
+          <button
             onClick={handleMainInstallClick}
             className="w-full flex items-center justify-between p-4 bg-white rounded-xl border border-blue-50 hover:bg-blue-50/50 transition-colors group"
           >
             <div className="flex items-center gap-3">
-               <Download className="w-5 h-5 text-blue-500 group-hover:bounce" />
-               <div className="text-left">
-                 <span className="font-bold text-gray-700 block text-sm">Instalar Aplicativo</span>
-                 <span className="text-[10px] text-blue-600 font-bold uppercase tracking-widest">
-                   Acesso rápido e offline
-                 </span>
-               </div>
+              <Download className="w-5 h-5 text-blue-500 group-hover:bounce" />
+              <div className="text-left">
+                <span className="font-bold text-gray-700 block text-sm">Instalar Aplicativo</span>
+                <span className="text-[10px] text-blue-600 font-bold uppercase tracking-widest leading-none">
+                  ACESSO RÁPIDO E OFFLINE
+                </span>
+              </div>
             </div>
             <ChevronRight className="w-4 h-4 text-gray-300" />
           </button>
@@ -88,13 +88,13 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, canInstall, onInstall
 
         <button className="w-full flex items-center justify-between p-4 bg-white rounded-xl border border-gray-100 hover:bg-gray-50 transition-colors">
           <div className="flex items-center gap-3">
-             <Settings className="w-5 h-5 text-gray-400" />
-             <span className="font-medium text-gray-700">Configurações</span>
+            <Settings className="w-5 h-5 text-gray-400" />
+            <span className="font-medium text-gray-700">Configurações</span>
           </div>
           <ChevronRight className="w-4 h-4 text-gray-300" />
         </button>
-        
-        <button 
+
+        <button
           onClick={onLogout}
           className="w-full flex items-center gap-3 p-4 bg-white rounded-xl border border-rose-100 hover:bg-rose-50 transition-colors text-rose-600"
         >
@@ -113,7 +113,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, canInstall, onInstall
                 <div className="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200">
                   <Smartphone className="w-10 h-10 text-white" />
                 </div>
-                <button 
+                <button
                   onClick={() => setShowInstallModal(false)}
                   className="absolute -top-2 -right-2 p-1 bg-gray-100 hover:bg-gray-200 text-gray-500 rounded-full transition-colors border-2 border-white"
                 >
@@ -123,29 +123,56 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, canInstall, onInstall
 
               <h3 className="text-xl font-black text-gray-900 mb-2">Instalar Econix</h3>
               <p className="text-sm text-gray-500 font-medium mb-8 leading-relaxed">
-                {isIOS 
-                  ? "Tenha uma experiência nativa no seu iPhone adicionando o Econix à sua tela de início."
-                  : "Acesse suas finanças com um toque, direto da sua tela inicial e com suporte offline."
+                {isIOS
+                  ? "Tenha uma experi\u00eancia nativa no seu iPhone adicionando o Econix \u00e0 sua tela de in\u00edcio."
+                  : "Acesse suas finan\u00e7as com um toque, direto da sua tela inicial e com suporte offline."
                 }
               </p>
 
               {isIOS ? (
-                <div className="w-full space-y-4 bg-blue-50 p-4 rounded-2xl">
+                <div className="w-full space-y-4 bg-blue-50/50 p-5 rounded-2xl border border-blue-100">
                   <div className="flex items-center gap-3 text-left">
-                    <div className="p-2 bg-white rounded-lg shadow-sm">
+                    <div className="w-8 h-8 flex items-center justify-center bg-white rounded-lg shadow-sm shrink-0">
                       <Share className="w-4 h-4 text-blue-600" />
                     </div>
-                    <p className="text-xs font-bold text-blue-900">1. Toque no ícone de Compartilhar</p>
+                    <p className="text-xs font-bold text-blue-900">1. Toque no \u00edcone de 'Compartilhar' no Safari</p>
                   </div>
                   <div className="flex items-center gap-3 text-left">
-                    <div className="p-2 bg-white rounded-lg shadow-sm">
+                    <div className="w-8 h-8 flex items-center justify-center bg-white rounded-lg shadow-sm shrink-0">
                       <PlusSquare className="w-4 h-4 text-blue-600" />
                     </div>
-                    <p className="text-xs font-bold text-blue-900">2. Escolha 'Adicionar à Tela de Início'</p>
+                    <p className="text-xs font-bold text-blue-900">2. Escolha 'Adicionar \u00e0 Tela de In\u00edcio'</p>
                   </div>
+                  <button
+                    onClick={() => setShowInstallModal(false)}
+                    className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold text-sm shadow-md shadow-blue-100 hover:bg-blue-700 transition-all mt-2"
+                  >
+                    Entendi, vou adicionar
+                  </button>
+                </div>
+              ) : (isAndroid && !canInstall) ? (
+                <div className="w-full space-y-4 bg-blue-50/50 p-5 rounded-2xl border border-blue-100">
+                  <div className="flex items-center gap-3 text-left">
+                    <div className="w-8 h-8 flex items-center justify-center bg-white rounded-lg shadow-sm shrink-0">
+                      <Settings className="w-4 h-4 text-blue-600 rotate-90" />
+                    </div>
+                    <p className="text-xs font-bold text-blue-900">1. Toque nos tr\u00eas pontos do navegador</p>
+                  </div>
+                  <div className="flex items-center gap-3 text-left">
+                    <div className="w-8 h-8 flex items-center justify-center bg-white rounded-lg shadow-sm shrink-0">
+                      <Download className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <p className="text-xs font-bold text-blue-900">2. Escolha 'Instalar Aplicativo'</p>
+                  </div>
+                  <button
+                    onClick={() => setShowInstallModal(false)}
+                    className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold text-sm shadow-md shadow-blue-100 hover:bg-blue-700 transition-all mt-2"
+                  >
+                    Entendi, vou instalar
+                  </button>
                 </div>
               ) : (
-                <button 
+                <button
                   onClick={handleModalInstallClick}
                   className="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-100 hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
@@ -154,7 +181,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, canInstall, onInstall
                 </button>
               )}
 
-              <button 
+              <button
                 onClick={() => setShowInstallModal(false)}
                 className="mt-4 text-xs font-bold text-gray-400 uppercase tracking-widest hover:text-gray-600 transition-colors"
               >
