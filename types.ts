@@ -23,7 +23,15 @@ export interface FinancialRecord {
   recurrence: RecurrenceType;
 }
 
-export type ViewType = 'dashboard' | 'records' | 'profile' | 'categories';
+export interface Goal {
+  id: string;
+  category_id: string; // ID da categoria vinculada
+  type: RecordType;
+  month: string; // YYYY-MM
+  target_value: number;
+}
+
+export type ViewType = 'dashboard' | 'records' | 'profile' | 'categories' | 'goals';
 
 export interface DashboardFilters {
   month: string; // YYYY-MM

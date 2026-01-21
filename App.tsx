@@ -1,11 +1,12 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { ViewType, FinancialRecord, DashboardFilters, Category, User } from './types';
+import { ViewType, FinancialRecord, DashboardFilters, Category, User, Goal } from './types';
 import { DEFAULT_CATEGORIES } from './constants';
-import { LayoutDashboard, List, User as UserIcon, Loader2, Tags } from 'lucide-react';
+import { LayoutDashboard, List, User as UserIcon, Loader2, Tags, Flag } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import Records from './components/Records';
 import Categories from './components/Categories';
+import Goals from './components/Goals';
 import Profile from './components/Profile';
 import Auth from './components/Auth';
 import Toast from './components/ui/Toast';
@@ -16,6 +17,7 @@ const App: React.FC = () => {
   const [activeView, setActiveView] = useState<ViewType>('dashboard');
   const [records, setRecords] = useState<FinancialRecord[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [goals, setGoals] = useState<Goal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -114,6 +116,16 @@ const App: React.FC = () => {
       }));
 
       setRecords(mappedRecords);
+      setRecords(mappedRecords);
+
+      // Load Goals from LocalStorage (Simulated Backend)
+      const storedGoals = localStorage.getItem(`goals_${user.id}`);
+      if (storedGoals) {
+        setGoals(JSON.parse(storedGoals));
+      } else {
+        setGoals([]);
+      }
+
     } catch (error: any) {
       showToast(error.message, 'error');
     } finally {
@@ -142,6 +154,7 @@ const App: React.FC = () => {
         });
       } else {
         setUser(null);
+        setGoals([]);
       }
     });
 
@@ -309,6 +322,13 @@ const App: React.FC = () => {
         return;
       }
 
+      // Also check goals
+      const hasGoal = goals.some(g => g.category_id === id);
+      if (hasGoal) {
+        showToast('Não é possível excluir: existem metas vinculadas a esta categoria.', 'error');
+        return;
+      }
+
       const { error } = await supabase
         .from('categories')
         .delete()
@@ -321,6 +341,26 @@ const App: React.FC = () => {
     } catch (error: any) {
       showToast(error.message, 'error');
     }
+  };
+
+  const handleAddGoal = (goalData: Omit<Goal, 'id'>) => {
+    if (!user) return;
+    const newGoal: Goal = {
+      id: crypto.randomUUID(),
+      ...goalData
+    };
+    const updatedGoals = [...goals, newGoal];
+    setGoals(updatedGoals);
+    localStorage.setItem(`goals_${user.id}`, JSON.stringify(updatedGoals));
+    showToast('Meta criada com sucesso!');
+  };
+
+  const handleDeleteGoal = (id: string) => {
+    if (!user) return;
+    const updatedGoals = goals.filter(g => g.id !== id);
+    setGoals(updatedGoals);
+    localStorage.setItem(`goals_${user.id}`, JSON.stringify(updatedGoals));
+    showToast('Meta removida!');
   };
 
   const navigate = (view: ViewType) => {
@@ -397,6 +437,15 @@ const App: React.FC = () => {
                 onDelete={handleDeleteCategory}
               />
             )}
+            {activeView === 'goals' && (
+              <Goals
+                goals={goals}
+                categories={categories}
+                records={records}
+                onAddGoal={handleAddGoal}
+                onDeleteGoal={handleDeleteGoal}
+              />
+            )}
             {activeView === 'profile' && (
               <Profile
                 user={user}
@@ -427,6 +476,12 @@ const App: React.FC = () => {
           onClick={() => navigate('categories')}
           icon={<Tags className="w-6 h-6" />}
           label="Categorias"
+        />
+        <NavItem
+          active={activeView === 'goals'}
+          onClick={() => navigate('goals')}
+          icon={<Flag className="w-6 h-6" />}
+          label="Metas"
         />
         <NavItem
           active={activeView === 'profile'}
