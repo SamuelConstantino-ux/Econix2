@@ -117,12 +117,12 @@ const Categories: React.FC<CategoriesProps> = ({ categories, onAdd, onEdit, onDe
                 })}
             </div>
 
-            {/* List */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            {/* Grid of Cards (Single Column) */}
+            <div className="grid grid-cols-1 gap-4">
                 {filteredCategories.length > 0 ? (
-                    <div className="divide-y divide-gray-100">
-                        {filteredCategories.map((category) => (
-                            <div key={category.id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors group">
+                    filteredCategories.map((category) => (
+                        <div key={category.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col gap-4 group hover:shadow-md transition-all">
+                            <div className="flex justify-between items-start">
                                 <div className="flex items-center gap-3">
                                     <div
                                         className="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-sm"
@@ -138,7 +138,7 @@ const Categories: React.FC<CategoriesProps> = ({ categories, onAdd, onEdit, onDe
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                                     <button
                                         onClick={() => handleOpenModal(category)}
                                         className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
@@ -159,17 +159,14 @@ const Categories: React.FC<CategoriesProps> = ({ categories, onAdd, onEdit, onDe
                                     </button>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="flex flex-col items-center justify-center p-12 text-center">
-                        <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                            <List className="w-8 h-8 text-gray-300" />
                         </div>
-                        <h3 className="text-lg font-bold text-gray-900 mb-1">Sem categorias</h3>
-                        <p className="text-sm text-gray-500 max-w-xs mx-auto">
-                            Nenhuma categoria personalizada encontrada para {activeTab.toLowerCase()}.
-                        </p>
+                    ))
+                ) : (
+                    <div className="col-span-full flex flex-col items-center justify-center p-12 text-center text-gray-400">
+                        <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-3">
+                            <List className="w-6 h-6 text-gray-300" />
+                        </div>
+                        <p className="text-sm font-medium">Nenhuma categoria personalizada encontrada para {activeTab.toLowerCase()}.</p>
                     </div>
                 )}
             </div>
