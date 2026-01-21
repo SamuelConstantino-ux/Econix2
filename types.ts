@@ -23,7 +23,7 @@ export interface FinancialRecord {
   recurrence: RecurrenceType;
 }
 
-export type ViewType = 'dashboard' | 'records' | 'profile';
+export type ViewType = 'dashboard' | 'records' | 'profile' | 'categories';
 
 export interface DashboardFilters {
   month: string; // YYYY-MM

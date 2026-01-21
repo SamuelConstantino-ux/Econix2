@@ -2,9 +2,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ViewType, FinancialRecord, DashboardFilters, Category, User } from './types';
 import { DEFAULT_CATEGORIES } from './constants';
-import { LayoutDashboard, List, User as UserIcon, Loader2 } from 'lucide-react';
+import { LayoutDashboard, List, User as UserIcon, Loader2, Tags } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import Records from './components/Records';
+import Categories from './components/Categories';
 import Profile from './components/Profile';
 import Auth from './components/Auth';
 import Toast from './components/ui/Toast';
@@ -39,16 +40,16 @@ const App: React.FC = () => {
       console.log('PWA: Prompt não disponível no momento');
       return false;
     }
-    
+
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    
+
     if (outcome === 'accepted') {
       console.log('PWA: Usuário aceitou a instalação');
       setDeferredPrompt(null);
       return true;
     }
-    
+
     console.log('PWA: Usuário recusou a instalação');
     return false;
   };
@@ -60,13 +61,13 @@ const App: React.FC = () => {
   const fetchData = useCallback(async (silent = false) => {
     if (!user) return;
     if (!silent) setIsLoading(true);
-    
+
     try {
       let { data: catData, error: catError } = await supabase
         .from('categories')
         .select('*')
         .order('name');
-      
+
       if (catError) throw catError;
 
       if (!catData || catData.length === 0) {
@@ -85,7 +86,7 @@ const App: React.FC = () => {
         if (seedError) throw seedError;
         catData = seededData;
       }
-      
+
       setCategories(catData || []);
 
       const { data: recData, error: recError } = await supabase
@@ -180,7 +181,7 @@ const App: React.FC = () => {
       .single();
 
     if (error) throw error;
-    
+
     setCategories(prev => [...prev, data]);
     return data.id;
   };
@@ -188,7 +189,7 @@ const App: React.FC = () => {
   const handleAddRecord = async (recordData: Omit<FinancialRecord, 'id'>) => {
     try {
       const categoryId = await ensureCategory(recordData.category, recordData.type);
-      
+
       const { error } = await supabase
         .from('financial_records')
         .insert({
@@ -264,13 +265,61 @@ const App: React.FC = () => {
         .single();
 
       if (error) throw error;
-      
+
       setCategories(prev => [...prev, data]);
       showToast(`Categoria "${newCat.name}" criada!`);
       return data;
     } catch (error: any) {
       showToast(error.message, 'error');
       return null;
+    }
+  };
+
+  const handleEditCategory = async (updatedCat: Category) => {
+    try {
+      const { error } = await supabase
+        .from('categories')
+        .update({
+          name: updatedCat.name,
+          color: updatedCat.color
+        })
+        .eq('id', updatedCat.id);
+
+      if (error) throw error;
+
+      setCategories(prev => prev.map(c => c.id === updatedCat.id ? updatedCat : c));
+      showToast('Categoria atualizada!');
+    } catch (error: any) {
+      showToast(error.message, 'error');
+    }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    try {
+      // Check if there are records using this category
+      const { count, error: countError } = await supabase
+        .from('financial_records')
+        .select('*', { count: 'exact', head: true })
+        .eq('category_id', id);
+
+      if (countError) throw countError;
+
+      if (count && count > 0) {
+        showToast('Não é possível excluir: existem registros usando esta categoria.', 'error');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('categories')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setCategories(prev => prev.filter(c => c.id !== id));
+      showToast('Categoria excluída!');
+    } catch (error: any) {
+      showToast(error.message, 'error');
     }
   };
 
@@ -304,7 +353,7 @@ const App: React.FC = () => {
           <h1 className="text-xl font-black text-blue-600 tracking-tighter">ECONIX</h1>
           <div className="flex items-center gap-3">
             <span className="hidden sm:block text-xs font-bold text-gray-500 uppercase tracking-widest">{user.name.split(' ')[0]}</span>
-            <div 
+            <div
               className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-100 transition-all"
               onClick={() => navigate('profile')}
             >
@@ -323,27 +372,35 @@ const App: React.FC = () => {
         ) : (
           <div className="view-transition">
             {activeView === 'dashboard' && (
-              <Dashboard 
-                records={records} 
-                filters={filters} 
-                setFilters={setFilters} 
+              <Dashboard
+                records={records}
+                filters={filters}
+                setFilters={setFilters}
                 categories={categories}
               />
             )}
             {activeView === 'records' && (
-              <Records 
-                records={records} 
+              <Records
+                records={records}
                 categories={categories}
-                onAdd={handleAddRecord} 
-                onEdit={handleEditRecord} 
-                onDelete={handleDeleteRecord} 
+                onAdd={handleAddRecord}
+                onEdit={handleEditRecord}
+                onDelete={handleDeleteRecord}
                 onAddCategory={handleAddCategory}
               />
             )}
+            {activeView === 'categories' && (
+              <Categories
+                categories={categories}
+                onAdd={handleAddCategory}
+                onEdit={handleEditCategory}
+                onDelete={handleDeleteCategory}
+              />
+            )}
             {activeView === 'profile' && (
-              <Profile 
-                user={user} 
-                onLogout={handleLogout} 
+              <Profile
+                user={user}
+                onLogout={handleLogout}
                 canInstall={!!deferredPrompt}
                 onInstallApp={handleInstallApp}
               />
@@ -353,23 +410,29 @@ const App: React.FC = () => {
       </main>
 
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 py-3 px-6 flex justify-around items-center z-50 shadow-[0_-4px_10px_rgba(0,0,0,0.02)]">
-        <NavItem 
-          active={activeView === 'dashboard'} 
-          onClick={() => navigate('dashboard')} 
-          icon={<LayoutDashboard className="w-6 h-6" />} 
-          label="Início" 
+        <NavItem
+          active={activeView === 'dashboard'}
+          onClick={() => navigate('dashboard')}
+          icon={<LayoutDashboard className="w-6 h-6" />}
+          label="Início"
         />
-        <NavItem 
-          active={activeView === 'records'} 
-          onClick={() => navigate('records')} 
-          icon={<List className="w-6 h-6" />} 
-          label="Registros" 
+        <NavItem
+          active={activeView === 'records'}
+          onClick={() => navigate('records')}
+          icon={<List className="w-6 h-6" />}
+          label="Registros"
         />
-        <NavItem 
-          active={activeView === 'profile'} 
-          onClick={() => navigate('profile')} 
-          icon={<UserIcon className="w-6 h-6" />} 
-          label="Perfil" 
+        <NavItem
+          active={activeView === 'categories'}
+          onClick={() => navigate('categories')}
+          icon={<Tags className="w-6 h-6" />}
+          label="Categorias"
+        />
+        <NavItem
+          active={activeView === 'profile'}
+          onClick={() => navigate('profile')}
+          icon={<UserIcon className="w-6 h-6" />}
+          label="Perfil"
         />
       </nav>
 
@@ -379,7 +442,7 @@ const App: React.FC = () => {
 };
 
 const NavItem: React.FC<{ active: boolean; onClick: () => void; icon: React.ReactNode; label: string }> = ({ active, onClick, icon, label }) => (
-  <button 
+  <button
     onClick={onClick}
     className={`flex flex-col items-center gap-1 transition-all ${active ? 'text-blue-600 scale-105' : 'text-gray-400 hover:text-gray-600'}`}
   >
