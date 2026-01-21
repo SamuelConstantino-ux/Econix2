@@ -1,9 +1,8 @@
-
 {
   "name": "Econix - Controle Financeiro",
   "short_name": "Econix",
   "description": "Gestão de finanças pessoais moderna e minimalista.",
-  "start_url": "./",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#f9fafb",
   "theme_color": "#2563eb",

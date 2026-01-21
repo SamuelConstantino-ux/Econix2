@@ -1,9 +1,9 @@
 
 const CACHE_NAME = 'econix-pwa-v1';
 const PRECACHE_ASSETS = [
-  './',
-  './index.html',
-  './manifest.json'
+  '/',
+  '/index.html',
+  '/manifest.json'
 ];
 
 // Instalação: Cacheia os arquivos essenciais
@@ -57,8 +57,8 @@ self.addEventListener('fetch', (event) => {
       return fetch(event.request).then((networkResponse) => {
         // Cacheia assets externos confiáveis (Tailwind, Google Fonts)
         if (
-          url.hostname.includes('tailwindcss.com') || 
-          url.hostname.includes('googleapis.com') || 
+          url.hostname.includes('tailwindcss.com') ||
+          url.hostname.includes('googleapis.com') ||
           url.hostname.includes('gstatic.com') ||
           url.hostname.includes('esm.sh')
         ) {
