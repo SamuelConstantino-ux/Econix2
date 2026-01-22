@@ -20,7 +20,7 @@ const Records: React.FC<RecordsProps> = ({ records, categories, onAdd, onEdit, o
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<RecordType | 'Todos'>('Todos');
   const [statusFilter, setStatusFilter] = useState<RecordStatus | 'Todos'>('Todos');
-  
+
   const todayMonth = new Date().toISOString().slice(0, 7);
   const [viewMonth, setViewMonth] = useState(todayMonth);
 
@@ -84,16 +84,16 @@ const Records: React.FC<RecordsProps> = ({ records, categories, onAdd, onEdit, o
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
         <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-center">
-           <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Mês Visualizado</label>
-           <div className="flex items-center justify-between gap-1">
-              <button onClick={handlePrevMonth} className="p-1 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors border border-gray-100">
-                <ChevronLeft className="w-3.5 h-3.5" />
-              </button>
-              <span className="text-xs font-bold text-gray-900 capitalize truncate">{getMonthName(viewMonth)}</span>
-              <button onClick={handleNextMonth} className="p-1 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors border border-gray-100">
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-           </div>
+          <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Mês Visualizado</label>
+          <div className="flex items-center justify-between gap-1">
+            <button onClick={handlePrevMonth} className="p-1 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors border border-gray-100">
+              <ChevronLeft className="w-3.5 h-3.5" />
+            </button>
+            <span className="text-xs font-bold text-gray-900 capitalize truncate">{getMonthName(viewMonth)}</span>
+            <button onClick={handleNextMonth} className="p-1 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors border border-gray-100">
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
         <StatCard label="Entradas" value={totals.income} color="emerald" icon={<TrendingUp className="w-3.5 h-3.5" />} />
         <StatCard label="Saídas" value={totals.expense} color="rose" icon={<TrendingDown className="w-3.5 h-3.5" />} />
@@ -128,7 +128,7 @@ const Records: React.FC<RecordsProps> = ({ records, categories, onAdd, onEdit, o
                 <th className="px-3 py-4 w-24">Data</th>
                 <th className="px-2 py-4 w-28">Tipo</th>
                 <th className="px-2 py-4">Categoria</th>
-                <th className="px-2 py-4 hidden md:table-cell">Descrição</th>
+                <th className="px-2 py-4">Descrição</th>
                 <th className="px-2 py-4 w-24">Valor</th>
                 <th className="px-2 py-4 text-center w-24">Status</th>
                 <th className="px-2 py-4 text-center w-24">Recorrência</th>
@@ -140,10 +140,9 @@ const Records: React.FC<RecordsProps> = ({ records, categories, onAdd, onEdit, o
                 <tr key={record.id} className="hover:bg-gray-50/50 transition-colors group">
                   <td className="px-3 py-3 text-[11px] text-gray-600 font-bold whitespace-nowrap">{formatDate(record.date)}</td>
                   <td className="px-2 py-3">
-                    <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded-md inline-block whitespace-nowrap ${
-                      record.type === 'Entrada' ? 'bg-emerald-50 text-emerald-600' : 
-                      record.type === 'Saída' ? 'bg-rose-50 text-rose-600' : 'bg-blue-50 text-blue-600'
-                    }`}>{record.type}</span>
+                    <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded-md inline-block whitespace-nowrap ${record.type === 'Entrada' ? 'bg-emerald-50 text-emerald-600' :
+                        record.type === 'Saída' ? 'bg-rose-50 text-rose-600' : 'bg-blue-50 text-blue-600'
+                      }`}>{record.type}</span>
                   </td>
                   <td className="px-2 py-3">
                     <div className="flex items-center gap-1.5 min-w-0">
@@ -151,7 +150,7 @@ const Records: React.FC<RecordsProps> = ({ records, categories, onAdd, onEdit, o
                       <span className="text-[11px] font-bold text-gray-700 truncate">{record.category}</span>
                     </div>
                   </td>
-                  <td className="px-2 py-3 text-[11px] font-medium text-gray-500 truncate max-w-[120px] hidden md:table-cell">
+                  <td className="px-2 py-3 text-[11px] font-medium text-gray-500 truncate max-w-[120px]">
                     {record.description || '-'}
                   </td>
                   <td className="px-2 py-3 text-[11px] font-extrabold text-gray-900 whitespace-nowrap">{formatCurrency(record.value)}</td>
@@ -189,9 +188,9 @@ const Records: React.FC<RecordsProps> = ({ records, categories, onAdd, onEdit, o
               <button onClick={() => setIsModalOpen(false)} className="p-2 text-gray-400 hover:bg-gray-50 rounded-full transition-colors"><Plus className="w-6 h-6 rotate-45" /></button>
             </div>
             <div className="overflow-y-auto flex-1 p-6 scroll-smooth">
-              <RecordForm 
-                categories={categories} 
-                initialData={editingRecord || undefined} 
+              <RecordForm
+                categories={categories}
+                initialData={editingRecord || undefined}
                 onSave={(data) => {
                   if (editingRecord) onEdit({ ...data, id: editingRecord.id });
                   else onAdd(data);
@@ -271,17 +270,17 @@ const RecordForm: React.FC<RecordFormProps> = ({ categories, initialData, onSave
   const handleCreateCategory = async () => {
     if (!newCatName.trim() || isCreatingCat) return;
     setIsCreatingCat(true);
-    
+
     try {
-      const newCat: Category = { 
+      const newCat: Category = {
         id: '',
-        name: newCatName, 
-        color: newCatColor, 
-        type: formData.type 
+        name: newCatName,
+        color: newCatColor,
+        type: formData.type
       };
-      
+
       const created = await onAddCategory(newCat);
-      
+
       if (created) {
         setFormData(prev => ({ ...prev, category: created.name }));
         setNewCatName('');
@@ -316,7 +315,7 @@ const RecordForm: React.FC<RecordFormProps> = ({ categories, initialData, onSave
             {isAddingCategory ? 'Cancelar' : '+ Nova Categoria'}
           </button>
         </div>
-        
+
         {!isAddingCategory ? (
           <select className="w-full p-2.5 bg-gray-50 border border-gray-100 rounded-xl outline-none text-sm font-bold appearance-none cursor-pointer" value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} required>
             {availableCategories.map(cat => <option key={cat.id} value={cat.name}>{cat.name}</option>)}
@@ -324,15 +323,15 @@ const RecordForm: React.FC<RecordFormProps> = ({ categories, initialData, onSave
         ) : (
           <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100/50 space-y-3 animate-in fade-in slide-in-from-top-2">
             <div className="flex gap-2">
-               <input type="text" placeholder="Nome da categoria..." className="flex-1 p-2 text-sm bg-white border border-gray-200 rounded-lg outline-none font-bold" value={newCatName} onChange={(e) => setNewCatName(e.target.value)} autoFocus />
-               <div className="flex items-center gap-2 px-2 bg-white border border-gray-200 rounded-lg">
-                  <Palette className="w-3.5 h-3.5 text-gray-400" />
-                  <input type="color" className="w-5 h-5 border-none cursor-pointer bg-transparent" value={newCatColor} onChange={(e) => setNewCatColor(e.target.value)} title="Cor da Categoria" />
-               </div>
+              <input type="text" placeholder="Nome da categoria..." className="flex-1 p-2 text-sm bg-white border border-gray-200 rounded-lg outline-none font-bold" value={newCatName} onChange={(e) => setNewCatName(e.target.value)} autoFocus />
+              <div className="flex items-center gap-2 px-2 bg-white border border-gray-200 rounded-lg">
+                <Palette className="w-3.5 h-3.5 text-gray-400" />
+                <input type="color" className="w-5 h-5 border-none cursor-pointer bg-transparent" value={newCatColor} onChange={(e) => setNewCatColor(e.target.value)} title="Cor da Categoria" />
+              </div>
             </div>
-            <button 
-              type="button" 
-              onClick={handleCreateCategory} 
+            <button
+              type="button"
+              onClick={handleCreateCategory}
               disabled={isCreatingCat}
               className="w-full py-2 bg-blue-600 text-white text-[10px] font-black uppercase rounded-lg shadow-sm hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center"
             >

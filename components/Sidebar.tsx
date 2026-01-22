@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, List, User as UserIcon, Tags, Flag, ChevronLeft, ChevronRight, Menu, LogOut } from 'lucide-react';
+import { Home, List, User as UserIcon, Tags, Flag, ChevronLeft, ChevronRight, Menu, LogOut } from 'lucide-react';
 import { ViewType, User } from '../types';
 
 interface SidebarProps {
@@ -43,7 +43,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     };
 
     const menuItems = [
-        { id: 'dashboard', label: 'Início', icon: LayoutDashboard },
+        { id: 'dashboard', label: 'Início', icon: Home },
         { id: 'records', label: 'Registros', icon: List },
         { id: 'categories', label: 'Categorias', icon: Tags },
         { id: 'goals', label: 'Metas', icon: Flag },
