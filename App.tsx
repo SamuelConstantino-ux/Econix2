@@ -2,13 +2,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ViewType, FinancialRecord, DashboardFilters, Category, User, Goal } from './types';
 import { DEFAULT_CATEGORIES } from './constants';
-import { LayoutDashboard, List, User as UserIcon, Loader2, Tags, Flag } from 'lucide-react';
+import { LayoutDashboard, List, User as UserIcon, Loader2, Tags, Flag, Menu } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import Records from './components/Records';
 import Categories from './components/Categories';
 import Goals from './components/Goals';
 import Profile from './components/Profile';
 import Auth from './components/Auth';
+import Sidebar from './components/Sidebar';
 import Toast from './components/ui/Toast';
 import { supabase } from './lib/supabase';
 
@@ -21,6 +22,7 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const [filters, setFilters] = useState<DashboardFilters>({
     month: new Date().toISOString().slice(0, 7),
@@ -387,125 +389,95 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-          <h1 className="text-xl font-black text-blue-600 tracking-tighter">ECONIX</h1>
-          <div className="flex items-center gap-3">
-            <span className="hidden sm:block text-xs font-bold text-gray-500 uppercase tracking-widest">{user.name.split(' ')[0]}</span>
+    <div className="min-h-screen bg-gray-50 flex flex-row">
+      <Sidebar
+        activeView={activeView}
+        onNavigate={navigate}
+        user={user}
+        onLogout={handleLogout}
+        isMobileOpen={isMobileOpen}
+        setIsMobileOpen={setIsMobileOpen}
+      />
+
+      <div className="flex-1 flex flex-col min-h-screen transition-all duration-300 w-full">
+        {/* Mobile Header */}
+        <header className="md:hidden bg-white border-b border-gray-100 sticky top-0 z-30">
+          <div className="px-4 h-16 flex items-center justify-between">
+            <button
+              onClick={() => setIsMobileOpen(true)}
+              className="p-2 -ml-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <h1 className="text-xl font-black text-blue-600 tracking-tighter">ECONIX</h1>
             <div
-              className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-100 transition-all"
+              className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs overflow-hidden cursor-pointer"
               onClick={() => navigate('profile')}
             >
               {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" alt="" /> : user.name.slice(0, 2).toUpperCase()}
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <main className="flex-1 max-w-5xl mx-auto w-full pt-6">
-        {isLoading ? (
-          <div className="flex flex-col items-center justify-center h-[60vh] text-gray-400">
-            <Loader2 className="w-10 h-10 animate-spin text-blue-600 mb-4" />
-            <p className="font-medium">Sincronizando dados...</p>
-          </div>
-        ) : (
-          <div className="view-transition">
-            {activeView === 'dashboard' && (
-              <Dashboard
-                records={records}
-                filters={filters}
-                setFilters={setFilters}
-                categories={categories}
-              />
-            )}
-            {activeView === 'records' && (
-              <Records
-                records={records}
-                categories={categories}
-                onAdd={handleAddRecord}
-                onEdit={handleEditRecord}
-                onDelete={handleDeleteRecord}
-                onAddCategory={handleAddCategory}
-              />
-            )}
-            {activeView === 'categories' && (
-              <Categories
-                categories={categories}
-                onAdd={handleAddCategory}
-                onEdit={handleEditCategory}
-                onDelete={handleDeleteCategory}
-              />
-            )}
-            {activeView === 'goals' && (
-              <Goals
-                goals={goals}
-                categories={categories}
-                records={records}
-                onAddGoal={handleAddGoal}
-                onDeleteGoal={handleDeleteGoal}
-              />
-            )}
-            {activeView === 'profile' && (
-              <Profile
-                user={user}
-                onLogout={handleLogout}
-                canInstall={!!deferredPrompt}
-                onInstallApp={handleInstallApp}
-              />
-            )}
-          </div>
-        )}
-      </main>
-
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 py-3 px-6 flex justify-around items-center z-50 shadow-[0_-4px_10px_rgba(0,0,0,0.02)]">
-        <NavItem
-          active={activeView === 'dashboard'}
-          onClick={() => navigate('dashboard')}
-          icon={<LayoutDashboard className="w-6 h-6" />}
-          label="Início"
-        />
-        <NavItem
-          active={activeView === 'records'}
-          onClick={() => navigate('records')}
-          icon={<List className="w-6 h-6" />}
-          label="Registros"
-        />
-        <NavItem
-          active={activeView === 'categories'}
-          onClick={() => navigate('categories')}
-          icon={<Tags className="w-6 h-6" />}
-          label="Categorias"
-        />
-        <NavItem
-          active={activeView === 'goals'}
-          onClick={() => navigate('goals')}
-          icon={<Flag className="w-6 h-6" />}
-          label="Metas"
-        />
-        <NavItem
-          active={activeView === 'profile'}
-          onClick={() => navigate('profile')}
-          icon={<UserIcon className="w-6 h-6" />}
-          label="Perfil"
-        />
-      </nav>
+        <main className="flex-1 w-full max-w-7xl mx-auto p-4 md:p-8">
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center h-[60vh] text-gray-400">
+              <Loader2 className="w-10 h-10 animate-spin text-blue-600 mb-4" />
+              <p className="font-medium">Sincronizando dados...</p>
+            </div>
+          ) : (
+            <div className="view-transition">
+              {activeView === 'dashboard' && (
+                <Dashboard
+                  records={records}
+                  filters={filters}
+                  setFilters={setFilters}
+                  categories={categories}
+                />
+              )}
+              {activeView === 'records' && (
+                <Records
+                  records={records}
+                  categories={categories}
+                  onAdd={handleAddRecord}
+                  onEdit={handleEditRecord}
+                  onDelete={handleDeleteRecord}
+                  onAddCategory={handleAddCategory}
+                />
+              )}
+              {activeView === 'categories' && (
+                <Categories
+                  categories={categories}
+                  onAdd={handleAddCategory}
+                  onEdit={handleEditCategory}
+                  onDelete={handleDeleteCategory}
+                />
+              )}
+              {activeView === 'goals' && (
+                <Goals
+                  goals={goals}
+                  categories={categories}
+                  records={records}
+                  onAddGoal={handleAddGoal}
+                  onDeleteGoal={handleDeleteGoal}
+                />
+              )}
+              {activeView === 'profile' && (
+                <Profile
+                  user={user}
+                  onLogout={handleLogout}
+                  canInstall={!!deferredPrompt}
+                  onInstallApp={handleInstallApp}
+                />
+              )}
+            </div>
+          )}
+        </main>
+      </div>
 
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );
 };
-
-const NavItem: React.FC<{ active: boolean; onClick: () => void; icon: React.ReactNode; label: string }> = ({ active, onClick, icon, label }) => (
-  <button
-    onClick={onClick}
-    className={`flex flex-col items-center gap-1 transition-all ${active ? 'text-blue-600 scale-105' : 'text-gray-400 hover:text-gray-600'}`}
-  >
-    {icon}
-    <span className={`text-[10px] font-bold uppercase tracking-widest ${active ? 'opacity-100' : 'opacity-70'}`}>
-      {label}
-    </span>
-  </button>
-);
 
 export default App;
