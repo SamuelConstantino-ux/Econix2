@@ -231,18 +231,18 @@ const KpiCard: React.FC<{ title: string; value: number; icon: React.ReactNode; c
   };
 
   return (
-    <div className={`${bgColors[color] || 'bg-gray-50 border-gray-100'} rounded-2xl shadow-sm border flex overflow-hidden hover:shadow-md transition-all group relative h-24`}>
+    <div className={`${bgColors[color] || 'bg-gray-50 border-gray-100'} rounded-2xl shadow-sm border flex overflow-hidden hover:shadow-md transition-all group relative h-auto`}>
       <div className="w-1.5 flex-shrink-0" style={{ backgroundColor: barColor }} />
-      <div className="flex-1 p-4 flex items-center justify-between min-w-0">
+      <div className="flex-1 p-3 flex items-center justify-between min-w-0">
         <div className="min-w-0">
           <p className="text-[9px] text-gray-500 font-black uppercase tracking-widest mb-0.5">
             {title}
           </p>
-          <p className="text-lg font-black truncate text-gray-900 tracking-tight">
+          <p className="text-base font-black truncate text-gray-900 tracking-tight">
             {formatCurrency(value)}
           </p>
         </div>
-        <div className="w-9 h-9 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0 ml-2 group-hover:scale-110 transition-transform">
+        <div className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center flex-shrink-0 ml-2 group-hover:scale-110 transition-transform">
           {icon}
         </div>
       </div>

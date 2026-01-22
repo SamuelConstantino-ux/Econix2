@@ -92,7 +92,7 @@ const Goals: React.FC<GoalsProps> = ({ goals, categories, records, onAddGoal, on
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Metas Mensais</h2>
-                    <p className="text-xs text-gray-500 font-medium mt-1">Defina e acompanhe seus objetivos</p>
+                    <p className="text-sm text-gray-500 font-medium">Defina e acompanhe seus objetivos</p>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -108,10 +108,10 @@ const Goals: React.FC<GoalsProps> = ({ goals, categories, records, onAddGoal, on
 
                     <button
                         onClick={() => { setIsModalOpen(true); setFormData({ ...formData, month: viewMonth }); }}
-                        className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-sm active:scale-95"
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-sm active:scale-95"
                     >
-                        <Plus className="w-4 h-4" />
-                        <span className="text-xs font-bold">Nova Meta</span>
+                        <Plus className="w-5 h-5" />
+                        <span className="font-bold">Nova Meta</span>
                     </button>
                 </div>
             </div>
@@ -125,9 +125,9 @@ const Goals: React.FC<GoalsProps> = ({ goals, categories, records, onAddGoal, on
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${isActive
-                                    ? `bg-${color}-50 text-${color}-600 shadow-sm`
-                                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${isActive
+                                ? `bg-${color}-50 text-${color}-600 shadow-sm`
+                                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                                 }`}
                         >
                             {tab === 'Saída' ? <TrendingDown className="w-4 h-4" /> : <TrendingUp className="w-4 h-4" />}
@@ -176,7 +176,7 @@ const Goals: React.FC<GoalsProps> = ({ goals, categories, records, onAddGoal, on
                         }
 
                         return (
-                            <div key={goal.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col gap-4 group">
+                            <div key={goal.id} className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex flex-col gap-3 group">
                                 <div className="flex justify-between items-start">
                                     <div className="flex items-center gap-3">
                                         <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm" style={{ backgroundColor: goal.categoryColor }}>
