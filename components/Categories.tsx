@@ -85,14 +85,14 @@ const Categories: React.FC<CategoriesProps> = ({ categories, onAdd, onEdit, onDe
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Categorias</h2>
-                    <p className="text-sm text-gray-500 font-medium">Gerencie suas categorias por tipo</p>
+                    <p className="text-xs text-gray-500 font-medium mt-1">Gerencie suas categorias por tipo</p>
                 </div>
                 <button
                     onClick={() => handleOpenModal()}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-sm active:scale-95"
+                    className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-sm active:scale-95"
                 >
-                    <Plus className="w-5 h-5" />
-                    <span className="font-bold">Nova Categoria</span>
+                    <Plus className="w-4 h-4" />
+                    <span className="text-xs font-bold">Nova Categoria</span>
                 </button>
             </div>
 
@@ -121,11 +121,11 @@ const Categories: React.FC<CategoriesProps> = ({ categories, onAdd, onEdit, onDe
             <div className="grid grid-cols-1 gap-4">
                 {filteredCategories.length > 0 ? (
                     filteredCategories.map((category) => (
-                        <div key={category.id} className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex flex-col gap-3 group hover:shadow-md transition-all">
+                        <div key={category.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col gap-4 group hover:shadow-md transition-all">
                             <div className="flex justify-between items-start">
                                 <div className="flex items-center gap-3">
                                     <div
-                                        className="w-9 h-9 rounded-full flex items-center justify-center text-white shadow-sm"
+                                        className="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-sm"
                                         style={{ backgroundColor: category.color }}
                                     >
                                         <List className="w-5 h-5 opacity-90" />
