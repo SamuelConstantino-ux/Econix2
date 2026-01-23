@@ -23,6 +23,8 @@ const App: React.FC = () => {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
+  const [showUpdateBanner, setShowUpdateBanner] = useState(false);
 
   const [filters, setFilters] = useState<DashboardFilters>({
     month: new Date().toISOString().slice(0, 7),
@@ -38,6 +40,49 @@ const App: React.FC = () => {
     window.addEventListener('beforeinstallprompt', handler);
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
+
+  // Registro do Service Worker e detecção de atualizações
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then((registration) => {
+        console.log('SW: Registrado com sucesso');
+
+        // Verifica se já existe um SW esperando
+        if (registration.waiting) {
+          setWaitingWorker(registration.waiting);
+          setShowUpdateBanner(true);
+        }
+
+        // Listener para novas atualizações enquanto o app está aberto
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // Nova versão instalada e pronta para ativar
+                setWaitingWorker(newWorker);
+                setShowUpdateBanner(true);
+              }
+            });
+          }
+        });
+      });
+
+      // Listener para quando o novo SW assume o controle
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
+      });
+    }
+  }, []);
+
+  const handleUpdateApp = () => {
+    waitingWorker?.postMessage({ type: 'SKIP_WAITING' });
+    setShowUpdateBanner(false);
+  };
 
   const handleInstallApp = async () => {
     if (!deferredPrompt) {
@@ -476,6 +521,29 @@ const App: React.FC = () => {
       </div>
 
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+
+      {/* Update Banner */}
+      {showUpdateBanner && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] w-[calc(100%-2rem)] max-w-sm animate-in slide-in-from-bottom-4 duration-300">
+          <div className="bg-blue-600 text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between gap-4 border border-blue-500/30 backdrop-blur-md">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-white/20 rounded-xl">
+                <Loader2 className="w-5 h-5 animate-spin" />
+              </div>
+              <div>
+                <p className="text-sm font-extrabold tracking-tight">Nova versão disponível!</p>
+                <p className="text-[10px] font-medium text-blue-100 italic">Atualize para as melhorias mais recentes.</p>
+              </div>
+            </div>
+            <button
+              onClick={handleUpdateApp}
+              className="px-4 py-2 bg-white text-blue-600 text-xs font-black uppercase rounded-lg shadow-sm hover:bg-gray-50 active:scale-95 transition-all whitespace-nowrap"
+            >
+              Atualizar Agora
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
