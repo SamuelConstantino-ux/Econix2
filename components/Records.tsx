@@ -20,6 +20,7 @@ const Records: React.FC<RecordsProps> = ({ records, categories, onAdd, onEdit, o
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<RecordType | 'Todos'>('Todos');
   const [statusFilter, setStatusFilter] = useState<RecordStatus | 'Todos'>('Todos');
+  const [recurrenceFilter, setRecurrenceFilter] = useState<string | 'Todos'>('Todos');
 
   const todayMonth = new Date().toISOString().slice(0, 7);
   const [viewMonth, setViewMonth] = useState(todayMonth);
@@ -29,8 +30,9 @@ const Records: React.FC<RecordsProps> = ({ records, categories, onAdd, onEdit, o
       const matchesSearch = r.description?.toLowerCase().includes(search.toLowerCase()) || r.category.toLowerCase().includes(search.toLowerCase());
       const matchesType = typeFilter === 'Todos' || r.type === typeFilter;
       const matchesStatus = statusFilter === 'Todos' || r.status === statusFilter;
+      const matchesRecurrence = recurrenceFilter === 'Todos' || r.recurrence === recurrenceFilter;
       const matchesMonth = r.date.startsWith(viewMonth);
-      return matchesSearch && matchesType && matchesStatus && matchesMonth;
+      return matchesSearch && matchesType && matchesStatus && matchesRecurrence && matchesMonth;
     }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [records, search, typeFilter, statusFilter, viewMonth]);
 
@@ -117,6 +119,11 @@ const Records: React.FC<RecordsProps> = ({ records, categories, onAdd, onEdit, o
             <option value="Pago">Pagos</option>
             <option value="Agendado">Agendados</option>
           </select>
+          <select value={recurrenceFilter} onChange={(e) => setRecurrenceFilter(e.target.value as any)} className="text-xs py-2 px-2 bg-gray-50 border-none rounded-lg outline-none font-bold">
+            <option value="Todos">Todas</option>
+            <option value="Fixo">Fixo</option>
+            <option value="Variável">Variável</option>
+          </select>
         </div>
       </div>
 
@@ -141,7 +148,7 @@ const Records: React.FC<RecordsProps> = ({ records, categories, onAdd, onEdit, o
                   <td className="px-3 py-3 text-[11px] text-gray-600 font-bold whitespace-nowrap">{formatDate(record.date)}</td>
                   <td className="px-2 py-3">
                     <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded-md inline-block whitespace-nowrap ${record.type === 'Entrada' ? 'bg-emerald-50 text-emerald-600' :
-                        record.type === 'Saída' ? 'bg-rose-50 text-rose-600' : 'bg-blue-50 text-blue-600'
+                      record.type === 'Saída' ? 'bg-rose-50 text-rose-600' : 'bg-blue-50 text-blue-600'
                       }`}>{record.type}</span>
                   </td>
                   <td className="px-2 py-3">
