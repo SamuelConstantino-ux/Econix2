@@ -105,7 +105,7 @@ const Dashboard: React.FC<DashboardProps> = ({ records, filters, setFilters, cat
   }, [categoryData, stats]);
 
   return (
-    <div className="space-y-4 pb-20 px-4">
+    <div className="space-y-4 pb-20 px-2 sm:px-4">
       {/* Header com Navegação */}
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
         <div className="flex flex-col">
@@ -231,19 +231,19 @@ const KpiCard: React.FC<{ title: string; value: number; icon: React.ReactNode; c
   };
 
   return (
-    <div className={`${bgColors[color] || 'bg-gray-50 border-gray-100'} rounded-2xl shadow-sm border flex overflow-hidden hover:shadow-md transition-all group relative h-24`}>
+    <div className={`${bgColors[color] || 'bg-gray-50 border-gray-100'} rounded-2xl shadow-sm border flex overflow-hidden hover:shadow-md transition-all group relative h-20 sm:h-24`}>
       <div className="w-1.5 flex-shrink-0" style={{ backgroundColor: barColor }} />
-      <div className="flex-1 p-4 flex items-center justify-between min-w-0">
+      <div className="flex-1 p-2 sm:p-4 flex items-center justify-between min-w-0">
         <div className="min-w-0">
-          <p className="text-[9px] text-gray-500 font-black uppercase tracking-widest mb-0.5">
+          <p className="text-[8px] sm:text-[9px] text-gray-500 font-black uppercase tracking-widest mb-0.5">
             {title}
           </p>
-          <p className="text-lg font-black truncate text-gray-900 tracking-tight">
+          <p className="text-sm sm:text-lg font-black truncate text-gray-900 tracking-tight">
             {formatCurrency(value)}
           </p>
         </div>
-        <div className="w-9 h-9 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0 ml-2 group-hover:scale-110 transition-transform">
-          {icon}
+        <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0 ml-1 sm:ml-2 group-hover:scale-110 transition-transform">
+          {React.cloneElement(icon as any, { className: 'w-3 h-3 sm:w-4 sm:h-4' })}
         </div>
       </div>
     </div>

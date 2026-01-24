@@ -464,7 +464,7 @@ const App: React.FC = () => {
           </div>
         </header>
 
-        <main className="flex-1 w-full max-w-full md:max-w-7xl mx-auto p-4 md:p-8">
+        <main className="flex-1 w-full max-w-full md:max-w-7xl mx-auto px-2 py-4 md:p-8">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center h-[60vh] text-gray-400">
               <Loader2 className="w-10 h-10 animate-spin text-blue-600 mb-4" />
