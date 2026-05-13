@@ -39,7 +39,8 @@ const Recurrences: React.FC<RecurrencesProps> = ({ templates, categories, onAddT
     }, [templates, activeTab]);
 
     const handleOpenApplyModal = () => {
-        setSelectedTemplateIds(templates.map(t => t.id));
+        const tabTemplates = templates.filter(t => t.type === activeTab);
+        setSelectedTemplateIds(tabTemplates.map(t => t.id));
         setIsApplyModalOpen(true);
     };
 
@@ -116,7 +117,7 @@ const Recurrences: React.FC<RecurrencesProps> = ({ templates, categories, onAddT
                 <div className="flex items-center gap-2">
                     <button
                         onClick={handleOpenApplyModal}
-                        disabled={templates.length === 0}
+                        disabled={filteredTemplates.length === 0}
                         className="flex items-center gap-2 px-3 py-2 bg-emerald-100 text-emerald-700 rounded-xl hover:bg-emerald-200 transition-all shadow-sm active:scale-95 disabled:opacity-50"
                     >
                         <CalendarCheck className="w-4 h-4" />
@@ -290,7 +291,7 @@ const Recurrences: React.FC<RecurrencesProps> = ({ templates, categories, onAddT
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
                     <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
                         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white shrink-0">
-                            <h3 className="text-lg font-extrabold text-gray-900 tracking-tight">Lançar Mês</h3>
+                            <h3 className="text-lg font-extrabold text-gray-900 tracking-tight">Lançar {activeTab === 'Saída' ? 'Despesas' : activeTab === 'Entrada' ? 'Receitas' : 'Investimentos'}</h3>
                             <button onClick={() => setIsApplyModalOpen(false)} className="p-2 text-gray-400 hover:bg-gray-50 rounded-full transition-colors">
                                 <Plus className="w-6 h-6 rotate-45" />
                             </button>
@@ -298,7 +299,7 @@ const Recurrences: React.FC<RecurrencesProps> = ({ templates, categories, onAddT
 
                         <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
                             <div className="p-3 bg-emerald-50 rounded-xl text-xs text-emerald-700 font-medium mb-4">
-                                Selecione o mês para lançar as recorrências e quais deseja incluir. Serão criados com status <strong>Agendado</strong>.
+                                Lançando templates de <strong>{activeTab === 'Saída' ? 'despesas' : activeTab === 'Entrada' ? 'receitas' : 'investimentos'}</strong>. Selecione o mês e quais deseja incluir. Serão criados com status <strong>Agendado</strong>.
                             </div>
 
                             <div>
@@ -315,7 +316,7 @@ const Recurrences: React.FC<RecurrencesProps> = ({ templates, categories, onAddT
                             <div className="pt-2">
                                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Templates Selecionados ({selectedTemplateIds.length})</label>
                                 <div className="space-y-2">
-                                    {templates.map(t => (
+                                    {filteredTemplates.map(t => (
                                         <div key={t.id} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer border border-transparent hover:border-gray-100 transition-colors" onClick={() => toggleTemplateSelection(t.id)}>
                                             <div className="flex items-center gap-3">
                                                 {selectedTemplateIds.includes(t.id) ? (
