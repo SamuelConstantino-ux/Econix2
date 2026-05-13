@@ -177,34 +177,7 @@ const App: React.FC = () => {
 
       // Load Templates
       const storedTemplates = localStorage.getItem(`templates_${user.id}`);
-      if (storedTemplates) {
-        setTemplates(JSON.parse(storedTemplates));
-      } else {
-        const fixedRecords = mappedRecords.filter(r => r.recurrence === 'Fixo');
-        const uniqueTemplates: RecordTemplate[] = [];
-        const seenKeys = new Set();
-        
-        fixedRecords.forEach(r => {
-          const key = `${r.type}-${r.category}-${r.value}`;
-          if (!seenKeys.has(key)) {
-            seenKeys.add(key);
-            const dateObj = new Date(r.date);
-            // Handle parsing date to get the day safely
-            const day = !isNaN(dateObj.getTime()) ? dateObj.getUTCDate() : 5;
-            uniqueTemplates.push({
-              id: crypto.randomUUID(),
-              type: r.type,
-              value: r.value,
-              category: r.category,
-              description: r.description,
-              dayOfMonth: day
-            });
-          }
-        });
-        
-        setTemplates(uniqueTemplates);
-        localStorage.setItem(`templates_${user.id}`, JSON.stringify(uniqueTemplates));
-      }
+      setTemplates(storedTemplates ? JSON.parse(storedTemplates) : []);
 
     } catch (error: any) {
       showToast(error.message, 'error');
