@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, List, User as UserIcon, Tags, Flag, ChevronLeft, ChevronRight, Menu, LogOut } from 'lucide-react';
+import { Home, List, User as UserIcon, Tags, Flag, ChevronLeft, ChevronRight, Menu, LogOut, Repeat } from 'lucide-react';
 import { ViewType, User } from '../types';
 
 interface SidebarProps {
@@ -47,6 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         { id: 'records', label: 'Registros', icon: List },
         { id: 'categories', label: 'Categorias', icon: Tags },
         { id: 'goals', label: 'Metas', icon: Flag },
+        { id: 'recurrences', label: 'Recorrências', icon: Repeat },
         { id: 'profile', label: 'Perfil', icon: UserIcon },
     ];
 

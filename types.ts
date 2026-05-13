@@ -31,7 +31,16 @@ export interface Goal {
   target_value: number;
 }
 
-export type ViewType = 'dashboard' | 'records' | 'profile' | 'categories' | 'goals';
+export interface RecordTemplate {
+  id: string;
+  type: RecordType;
+  value: number;
+  category: string;
+  description?: string;
+  dayOfMonth: number;
+}
+
+export type ViewType = 'dashboard' | 'records' | 'profile' | 'categories' | 'goals' | 'recurrences';
 
 export interface DashboardFilters {
   month: string; // YYYY-MM

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { ViewType, FinancialRecord, DashboardFilters, Category, User, Goal } from './types';
+import { ViewType, FinancialRecord, DashboardFilters, Category, User, Goal, RecordTemplate } from './types';
 import { DEFAULT_CATEGORIES } from './constants';
 import { LayoutDashboard, List, User as UserIcon, Loader2, Tags, Flag, Menu } from 'lucide-react';
 import Dashboard from './components/Dashboard';
@@ -10,6 +10,7 @@ import Goals from './components/Goals';
 import Profile from './components/Profile';
 import Auth from './components/Auth';
 import Sidebar from './components/Sidebar';
+import Recurrences from './components/Recurrences';
 import Toast from './components/ui/Toast';
 import { supabase } from './lib/supabase';
 
@@ -19,6 +20,7 @@ const App: React.FC = () => {
   const [records, setRecords] = useState<FinancialRecord[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [templates, setTemplates] = useState<RecordTemplate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -171,6 +173,37 @@ const App: React.FC = () => {
         setGoals(JSON.parse(storedGoals));
       } else {
         setGoals([]);
+      }
+
+      // Load Templates
+      const storedTemplates = localStorage.getItem(`templates_${user.id}`);
+      if (storedTemplates) {
+        setTemplates(JSON.parse(storedTemplates));
+      } else {
+        const fixedRecords = mappedRecords.filter(r => r.recurrence === 'Fixo');
+        const uniqueTemplates: RecordTemplate[] = [];
+        const seenKeys = new Set();
+        
+        fixedRecords.forEach(r => {
+          const key = `${r.type}-${r.category}-${r.value}`;
+          if (!seenKeys.has(key)) {
+            seenKeys.add(key);
+            const dateObj = new Date(r.date);
+            // Handle parsing date to get the day safely
+            const day = !isNaN(dateObj.getTime()) ? dateObj.getUTCDate() : 5;
+            uniqueTemplates.push({
+              id: crypto.randomUUID(),
+              type: r.type,
+              value: r.value,
+              category: r.category,
+              description: r.description,
+              dayOfMonth: day
+            });
+          }
+        });
+        
+        setTemplates(uniqueTemplates);
+        localStorage.setItem(`templates_${user.id}`, JSON.stringify(uniqueTemplates));
       }
 
     } catch (error: any) {
@@ -410,6 +443,65 @@ const App: React.FC = () => {
     showToast('Meta removida!');
   };
 
+  const handleAddTemplate = (templateData: Omit<RecordTemplate, 'id'>) => {
+    if (!user) return;
+    const newTemplate: RecordTemplate = { id: crypto.randomUUID(), ...templateData };
+    const updatedTemplates = [...templates, newTemplate];
+    setTemplates(updatedTemplates);
+    localStorage.setItem(`templates_${user.id}`, JSON.stringify(updatedTemplates));
+    showToast('Template criado com sucesso!');
+  };
+
+  const handleEditTemplate = (updatedTemplate: RecordTemplate) => {
+    if (!user) return;
+    const updatedTemplates = templates.map(t => t.id === updatedTemplate.id ? updatedTemplate : t);
+    setTemplates(updatedTemplates);
+    localStorage.setItem(`templates_${user.id}`, JSON.stringify(updatedTemplates));
+    showToast('Template atualizado!');
+  };
+
+  const handleDeleteTemplate = (id: string) => {
+    if (!user) return;
+    const updatedTemplates = templates.filter(t => t.id !== id);
+    setTemplates(updatedTemplates);
+    localStorage.setItem(`templates_${user.id}`, JSON.stringify(updatedTemplates));
+    showToast('Template removido!');
+  };
+
+  const handleApplyTemplates = async (selectedTemplates: RecordTemplate[], month: string) => {
+    if (!user) return;
+    setIsLoading(true);
+    let successCount = 0;
+    for (const t of selectedTemplates) {
+      const dateStr = `${month}-${String(t.dayOfMonth).padStart(2, '0')}`;
+      try {
+        const categoryId = await ensureCategory(t.category, t.type);
+        const { error } = await supabase.from('financial_records').insert({
+          user_id: user.id,
+          type: t.type,
+          value: t.value,
+          category_id: categoryId,
+          description: t.description,
+          date: dateStr,
+          status: 'Agendado',
+          recurrence_type: 'Fixo'
+        });
+        if (!error) successCount++;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    
+    if (successCount > 0) {
+      showToast(`${successCount} registros agendados criados!`);
+      fetchData(true);
+      navigate('records');
+    } else {
+      showToast('Erro ao aplicar templates.', 'error');
+    }
+    setIsLoading(false);
+  };
+
   const navigate = (view: ViewType) => {
     setIsLoading(true);
     setActiveView(view);
@@ -505,6 +597,16 @@ const App: React.FC = () => {
                   records={records}
                   onAddGoal={handleAddGoal}
                   onDeleteGoal={handleDeleteGoal}
+                />
+              )}
+              {activeView === 'recurrences' && (
+                <Recurrences
+                  templates={templates}
+                  categories={categories}
+                  onAddTemplate={handleAddTemplate}
+                  onEditTemplate={handleEditTemplate}
+                  onDeleteTemplate={handleDeleteTemplate}
+                  onApplyTemplates={handleApplyTemplates}
                 />
               )}
               {activeView === 'profile' && (
