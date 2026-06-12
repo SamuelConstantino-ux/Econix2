@@ -25,7 +25,7 @@ export interface FinancialRecord {
 
 export interface Goal {
   id: string;
-  category_id: string; // ID da categoria vinculada
+  category_id: string;
   type: RecordType;
   month: string; // YYYY-MM
   target_value: number;
@@ -35,7 +35,8 @@ export interface RecordTemplate {
   id: string;
   type: RecordType;
   value: number;
-  category: string;
+  category_id: string;   // ID da categoria no Supabase
+  category_name: string; // nome resolvido para exibição
   description?: string;
   dayOfMonth: number;
 }
