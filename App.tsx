@@ -428,30 +428,9 @@ const App: React.FC = () => {
     if (!user) return;
     setIsLoading(true);
     let successCount = 0;
-    let skippedCount = 0;
-
-    // Buscar registros já existentes no mês para evitar duplicatas
-    const { data: existingRecords } = await supabase
-      .from('financial_records')
-      .select('category_id, date, value, type')
-      .eq('user_id', user.id)
-      .gte('date', `${month}-01`)
-      .lte('date', `${month}-31`);
 
     for (const t of selectedTemplates) {
       const dateStr = `${month}-${String(t.dayOfMonth).padStart(2, '0')}`;
-      const alreadyExists = existingRecords?.some(
-        r => r.category_id === t.category_id &&
-             r.date === dateStr &&
-             Number(r.value) === t.value &&
-             r.type === t.type
-      );
-
-      if (alreadyExists) {
-        skippedCount++;
-        continue;
-      }
-
       try {
         const { error } = await supabase.from('financial_records').insert({
           user_id: user.id,
@@ -470,14 +449,9 @@ const App: React.FC = () => {
     }
 
     if (successCount > 0) {
-      const msg = skippedCount > 0
-        ? `${successCount} registros criados, ${skippedCount} já existiam.`
-        : `${successCount} registros agendados criados!`;
-      showToast(msg);
+      showToast(`${successCount} registros agendados criados!`);
       await fetchData(true);
       navigate('records');
-    } else if (skippedCount > 0) {
-      showToast('Todos os registros já foram lançados neste mês.', 'info');
     } else {
       showToast('Erro ao aplicar templates.', 'error');
     }
